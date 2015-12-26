@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
+<!--NOTICE: Please open this file in your web browser. If presented with a security warning, you may safely tell it to allow the blocked content.-->
+<!--For security purposes, please check: http://www.phpbb.com/mods/ for the latest version of this MOD.\nAlthough MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD.\nNo support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
+<mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://www.phpbb.com/mods/xml/modx-1.2.6.xsd">
+	<header>
+		<meta name="generator" content="MODX file generated with PP MODX Creator by tumba25 (online version)"/>
+		<license><![CDATA[http://opensource.org/licenses/gpl-license.php GNU General Public License v2]]></license>
+		<title lang="en"><![CDATA[PM PGP]]></title>
+		<description lang="en"><![CDATA[Adds ability to exchange PMs encrypted with PGP]]></description>
+		<author-group>
+			<author>
+				<realname><![CDATA[Mwamba Natanga]]></realname>
+				<username phpbbcom="no"><![CDATA[Mwamba Natanga]]></username>
+				<email><![CDATA[mwambanatanga@gmail.com]]></email>
+			</author>
+		</author-group>
+		<mod-version>1.0.0</mod-version>
+		<installation>
+			<level>easy</level>
+			<time>300</time>
+			<target-version>3.0.11</target-version>
+		</installation>
+	</header>
+	<action-group>
+		<copy>
+			<file from="root/keydown.php" to="keydown.php"/>
+		</copy>
+		<copy>
+			<file from="root/install_pm_pgp_mod.php" to="install_pm_pgp_mod.php"/>
+		</copy>
+		<copy>
+			<file from="root/includes/functions_pm_pgp.php" to="includes/functions_pm_pgp.php"/>
+		</copy>
+		<copy>
+			<file from="root/pm_pgp/*.*" to="pm_pgp/*.*"/>
+		</copy>
+		<copy>
+			<file from="root/language/*.*" to="language/*.*"/>
+		</copy>
+		<copy>
+			<file from="root/styles/prosilver/template/ucp_profile_pgp_key.html" to="styles/prosilver/template/ucp_profile_pgp_key.html"/>
+		</copy>
+		<open src="includes/constants.php">
+			<edit>
+				<find><![CDATA[// Additional tables]]></find>
+				<action type="after-add"><![CDATA[define('PGP_KEYS_TABLE', $table_prefix . 'pgp_keys');]]></action>
+			</edit>
+		</open>
+		<open src="includes/functions.php">
+			<edit>
+				<find><![CDATA[	$user_lang = $user->lang['USER_LANG'];]]></find>
+				<action type="after-add"><![CDATA[	$user->add_lang('mods/pm_pgp');]]></action>
+			</edit>
+		</open>
+		<open src="memberlist.php">
+			<edit>
+				<find><![CDATA[case 'viewprofile':]]></find>
+				<action type="after-add"><![CDATA[		include($phpbb_root_path . 'includes/functions_pm_pgp.' . $phpEx);]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[// Filter out hidden groups and sort groups by name]]></find>
+				<action type="before-add"><![CDATA[		$user->add_lang('mods/pm_pgp');
+		$fingerprint = get_pgp_fingerprint($user_id);
+		]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[	'U_REMOVE_FOE'		=> ($foe && $foes_enabled) ? append_sid("{$phpbb_root_path}ucp.$phpEx", 'i=zebra&amp;remove=1&amp;mode=foes&amp;usernames[]=' . $user_id) : '',]]></find>
+				<action type="after-add"><![CDATA[			'U_PGP_FINGERPRINT'		=> chunk_split(strtoupper(substr($fingerprint, -8)), 2, ' '),
+			'U_PGP_KEY_NOT_UPLOADED'	=> $user->lang['PGP_KEY_NOT_UPLOADED'],
+			'U_PGP_DOWNLOAD_URL'		=> "keydown.php?u=" . $user_id,
+			'U_PGP_DOWNLOAD'		=> !is_null($fingerprint) ? true : false,]]></action>
+			</edit>
+		</open>
+		<open src="styles/prosilver/template/memberlist_view.html">
+			<edit>
+				<find><![CDATA[<dl class="details">]]></find>
+				<action type="after-add"><![CDATA[		<dt>{L_PGP_KEY}</dt><dd><!-- IF U_PGP_DOWNLOAD --><a href="{SITE_ROOT}{U_PGP_DOWNLOAD_URL}">{U_PGP_FINGERPRINT}</a><!-- ELSE -->{U_PGP_KEY_NOT_UPLOADED}<!-- ENDIF --></dd>
+]]></action>
+			</edit>
+		</open>
+		<open src="styles/prosilver/template/overall_header.html">
+			<edit>
+				<find><![CDATA[<script type="text/javascript" src="{T_SUPER_TEMPLATE_PATH}/forum_fn.js"></script>]]></find>
+				<action type="after-add"><![CDATA[<!-- IF LOAD_PGP_JS --><script type="text/javascript" language="Javascript" src="pm_pgp/rsa.js"></script>
+<script type="text/javascript" language="Javascript" src="pm_pgp/aes-enc.js"></script>
+<script type="text/javascript" language="Javascript" src="pm_pgp/sha1.js"></script>
+<script type="text/javascript" language="Javascript" src="pm_pgp/base64.js"></script>
+<script type="text/javascript" language="Javascript" src="pm_pgp/PGpubkey.js"></script><!-- ENDIF -->
+]]></action>
+			</edit>
+		</open>
+		<open src="includes/ucp/ucp_profile.php">
+			<edit>
+				<find><![CDATA['S_DISPLAY_GALLERY'		=> ($auth->acl_get('u_chgavatar') && $config['allow_avatar_local']) ? true : false)
+					);
+				}
+
+			break;]]></find>
+				<action type="after-add"><![CDATA[
+
+			case 'pgp_key':
+				include($phpbb_root_path . 'includes/functions_pm_pgp.' . $phpEx);
+				$user->add_lang('mods/pm_pgp');
+
+				$data = array(
+					'user_id'	=> $user->data['user_id'],
+					'pgp_key'	=> request_var('pgp_key', ''),
+					'fingerprint'	=> request_var('fingerprint', ''),
+				);
+
+				add_form_key('ucp_pgp_key');
+				if ($submit)
+				{
+					if (!check_form_key('ucp_pgp_key'))
+					{
+						$error[] = 'FORM_INVALID';
+					}
+
+					if (!sizeof($error))
+					{
+						//validate first!!!
+
+						if (empty($data['pgp_key']))
+						{
+							delete_pgp_key($data['user_id']);
+							meta_refresh(3, $this->u_action);
+							$message = $user->lang['PGP_KEY_DELETED'] . '<br /><br />' . sprintf($user->lang['RETURN_UCP'], '<a href="' . $this->u_action . '">', '</a>');
+						}
+						else if (empty($data['fingerprint']))
+						{
+							meta_refresh(3, $this->u_action);
+							$message = $user->lang['BAD_PGP_KEY'] . '<br /><br />' . sprintf($user->lang['RETURN_UCP'], '<a href="' . $this->u_action . '">', '</a>');
+						}
+						else
+						{
+							put_pgp_key($data);
+							meta_refresh(3, $this->u_action);
+							$message = $user->lang['PGP_KEY_UPLOADED'] . '<br /><br />' . sprintf($user->lang['RETURN_UCP'], '<a href="' . $this->u_action . '">', '</a>');
+						}
+						trigger_error($message);
+					}
+				}
+
+				if (user_has_pgp_key($user->data['user_id'])) {
+					$data['pgp_key'] = get_pgp_public_key($user->data['user_id']);
+					$data['fingerprint'] = get_pgp_fingerprint($user->data['user_id']);
+				}
+
+
+				$template->assign_vars(array(
+					'L_PROFILE_PGP_NOTICE'	=> $user->lang['UCP_PROFILE_PGP_NOTICE'],
+					'L_PUBLIC_PGP_KEY'	=> $user->lang['YOUR_PUBLIC_PGP_KEY'],
+					'PGP_KEY_BLOCK'		=> $data['pgp_key'],
+					'L_PGP_FINGERPRINT'	=> $user->lang['PGP_KEY_FINGERPRINT'],
+					'PGP_FINGERPRINT'	=> strtoupper($data['fingerprint']),
+					'LOAD_PGP_JS'		=> true,)
+				);
+			break;
+]]></action>
+			</edit>
+		</open>
+		<open src="includes/ucp/info/ucp_profile.php">
+			<edit>
+				<find><![CDATA['reg_details'	=> array('title' => 'UCP_PROFILE_REG_DETAILS', 'auth' => '', 'cat' => array('UCP_PROFILE')),]]></find>
+				<action type="after-add"><![CDATA[				'pgp_key'	=> array('title' => 'UCP_PROFILE_PGP_KEY', 'auth' => '', 'cat' => array('UCP_PROFILE')),]]></action>
+			</edit>
+		</open>
+		<php-installer><![CDATA[install_pm_pgp_mod.php]]></php-installer>
+		<diy-instructions lang="en"><![CDATA[install_pm_pgp_mod.php - there is a PHP install file that needs to be run in order to complete the installation. To run it point your browser to, for example, domain.tld/phpBB3/install_pm_pgp_mod.php. After installation remove file install_pm_pgp_mod.php and purge cache.]]></diy-instructions>
+	</action-group>
+</mod>

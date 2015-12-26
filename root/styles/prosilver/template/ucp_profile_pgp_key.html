@@ -1,0 +1,50 @@
+<!-- INCLUDE ucp_header.html -->
+<script language="Javascript" type="text/javascript">
+
+var keytyp = -1;
+var keyid  = '';
+var pubkey = '';
+
+function getfingerprint()
+{
+ var key = document.getElementById('pgp_key').value;
+ var pu=new getPublicKey(key);
+
+ if(pu.vers == -1) return;
+
+ var fingerprint = pu.fp.toUpperCase();
+ document.getElementById("fp").innerHTML = fingerprint;
+ document.getElementById("fingerprint").value = fingerprint;
+}
+</script>
+<form id="ucp" method="post" action="{S_UCP_ACTION}"{S_FORM_ENCTYPE}>
+
+<h2>{L_TITLE}</h2>
+
+<div class="panel">
+	<div class="inner"><span class="corners-top"><span></span></span>
+	<p>{L_PROFILE_PGP_NOTICE}</p>
+
+	<fieldset>
+	<!-- IF ERROR --><p class="error">{ERROR}</p><!-- ENDIF -->
+	<dl>
+		<dt><label for="pgp_key">{L_PUBLIC_PGP_KEY}:</label></dt>
+		<dd><textarea name="pgp_key" id="pgp_key" class="inputbox" rows="3" cols="80" onkeyup="getfingerprint()">{PGP_KEY_BLOCK}</textarea></dd>
+	</dl>
+	<dl>
+		<dt><label for="fingerprint">{L_PGP_FINGERPRINT}:</label></dt>
+		<dd><span id="fp">{PGP_FINGERPRINT}</span><input type="hidden" name="fingerprint" id="fingerprint" value="{PGP_FINGERPRINT}"/></dd>
+	</dl>
+	</fieldset>
+
+	<span class="corners-bottom"><span></span></span></div>
+</div>
+
+<fieldset class="submit-buttons">
+	{S_HIDDEN_FIELDS}<input type="reset" value="{L_RESET}" name="reset" class="button2" />&nbsp; 
+	<input type="submit" name="submit" value="{L_SUBMIT}" class="button1" />
+	{S_FORM_TOKEN}
+</fieldset>
+</form>
+
+<!-- INCLUDE ucp_footer.html -->
