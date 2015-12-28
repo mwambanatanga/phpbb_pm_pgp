@@ -6,8 +6,16 @@
 	<header>
 		<meta name="generator" content="MODX file generated with PP MODX Creator by tumba25 (online version)"/>
 		<license><![CDATA[http://opensource.org/licenses/gpl-license.php GNU General Public License v2]]></license>
-		<title lang="en"><![CDATA[PM PGP]]></title>
+		<title lang="en"><![CDATA[PGP encryption for PM]]></title>
+		<title lang="ru"><![CDATA[Шифрование PGP для личных сообщений]]></title>
 		<description lang="en"><![CDATA[Adds ability to exchange PMs encrypted with PGP]]></description>
+		<description lang="ru"><![CDATA[Добавляет возможность обмениваться шифрованными ЛС]]></description>
+		<author-notes lang="en"><![CDATA[Note:
+- To install this mod correctly, first run this installer. Then make sure to run the "install_pm_pgp.php" file in the root directory of your forum.
+- To uninstall, first run the "install_pm_pgp.php" file and then uninstall the mod from the Admin Panel.]]></author-notes>
+		<author-notes lang="ru"><![CDATA[Примечания:
+- Для правильной установки этого дополнения, сперва запустите этот установщик. Затем обязательно запустите файл "install_pm_pgp.php" из корневого каталога вашего форума.
+- Для удаления, сперва запустите файл "install_pm_pgp.php", а затем удалите дополнение через Администраторский Раздел.]]></author-notes>
 		<author-group>
 			<author>
 				<realname><![CDATA[Mwamba Natanga]]></realname>
@@ -61,21 +69,21 @@
 			<edit>
 				<find><![CDATA[// Filter out hidden groups and sort groups by name]]></find>
 				<action type="before-add"><![CDATA[		$user->add_lang('mods/pm_pgp');
-		$fingerprint = get_pgp_fingerprint($user_id);
+		$pgp_data = get_pgp_data($user_id);
+		$fingerprint = $pgp_data['fingerprint'];
 		]]></action>
 			</edit>
 			<edit>
 				<find><![CDATA[	'U_REMOVE_FOE'		=> ($foe && $foes_enabled) ? append_sid("{$phpbb_root_path}ucp.$phpEx", 'i=zebra&amp;remove=1&amp;mode=foes&amp;usernames[]=' . $user_id) : '',]]></find>
 				<action type="after-add"><![CDATA[			'U_PGP_FINGERPRINT'		=> chunk_split(strtoupper(substr($fingerprint, -8)), 2, ' '),
-			'U_PGP_KEY_NOT_UPLOADED'	=> $user->lang['PGP_KEY_NOT_UPLOADED'],
 			'U_PGP_DOWNLOAD_URL'		=> "keydown.php?u=" . $user_id,
-			'U_PGP_DOWNLOAD'		=> !is_null($fingerprint) ? true : false,]]></action>
+			'U_PGP_DOWNLOAD'		=> !empty($fingerprint) ? true : false,]]></action>
 			</edit>
 		</open>
 		<open src="styles/prosilver/template/memberlist_view.html">
 			<edit>
 				<find><![CDATA[<dl class="details">]]></find>
-				<action type="after-add"><![CDATA[		<dt>{L_PGP_KEY}</dt><dd><!-- IF U_PGP_DOWNLOAD --><a href="{SITE_ROOT}{U_PGP_DOWNLOAD_URL}">{U_PGP_FINGERPRINT}</a><!-- ELSE -->{U_PGP_KEY_NOT_UPLOADED}<!-- ENDIF --></dd>
+				<action type="after-add"><![CDATA[		<dt>{L_PGP_KEY}</dt><dd><!-- IF U_PGP_DOWNLOAD --><a href="{SITE_ROOT}{U_PGP_DOWNLOAD_URL}">{U_PGP_FINGERPRINT}</a><!-- ELSE -->{L_PGP_KEY_NOT_UPLOADED}<!-- ENDIF --></dd>
 ]]></action>
 			</edit>
 		</open>
@@ -107,6 +115,8 @@
 					'user_id'	=> $user->data['user_id'],
 					'pgp_key'	=> request_var('pgp_key', ''),
 					'fingerprint'	=> request_var('fingerprint', ''),
+					'key_user'	=> request_var('key_user', ''),
+					'key_type'	=> request_var('key_type', ''),
 				);
 
 				add_form_key('ucp_pgp_key');
@@ -134,7 +144,7 @@
 						}
 						else
 						{
-							put_pgp_key($data);
+							put_pgp_data($data);
 							meta_refresh(3, $this->u_action);
 							$message = $user->lang['PGP_KEY_UPLOADED'] . '<br /><br />' . sprintf($user->lang['RETURN_UCP'], '<a href="' . $this->u_action . '">', '</a>');
 						}
@@ -143,17 +153,18 @@
 				}
 
 				if (user_has_pgp_key($user->data['user_id'])) {
-					$data['pgp_key'] = get_pgp_public_key($user->data['user_id']);
-					$data['fingerprint'] = get_pgp_fingerprint($user->data['user_id']);
+					$pgp_data = get_pgp_data($user->data['user_id']);
+					$data['pgp_key'] = $pgp_data['pgp_key'];
+					$data['fingerprint'] = $pgp_data['fingerprint'];
+					$data['key_user'] = $pgp_data['key_user'];
+					$data['key_type'] = $pgp_data['key_type'];
 				}
 
-
 				$template->assign_vars(array(
-					'L_PROFILE_PGP_NOTICE'	=> $user->lang['UCP_PROFILE_PGP_NOTICE'],
-					'L_PUBLIC_PGP_KEY'	=> $user->lang['YOUR_PUBLIC_PGP_KEY'],
 					'PGP_KEY_BLOCK'		=> $data['pgp_key'],
-					'L_PGP_FINGERPRINT'	=> $user->lang['PGP_KEY_FINGERPRINT'],
 					'PGP_FINGERPRINT'	=> strtoupper($data['fingerprint']),
+					'KEY_USER'		=> $data['key_user'],
+					'KEY_TYPE'		=> $data['key_type'],
 					'LOAD_PGP_JS'		=> true,)
 				);
 			break;
