@@ -90,11 +90,7 @@
 		<open src="styles/prosilver/template/overall_header.html">
 			<edit>
 				<find><![CDATA[<script type="text/javascript" src="{T_SUPER_TEMPLATE_PATH}/forum_fn.js"></script>]]></find>
-				<action type="after-add"><![CDATA[<!-- IF LOAD_PGP_JS --><script type="text/javascript" language="Javascript" src="pm_pgp/rsa.js"></script>
-<script type="text/javascript" language="Javascript" src="pm_pgp/aes-enc.js"></script>
-<script type="text/javascript" language="Javascript" src="pm_pgp/sha1.js"></script>
-<script type="text/javascript" language="Javascript" src="pm_pgp/base64.js"></script>
-<script type="text/javascript" language="Javascript" src="pm_pgp/PGpubkey.js"></script><!-- ENDIF -->
+				<action type="after-add"><![CDATA[<!-- IF LOAD_PGP_JS --><script type="text/javascript" language="Javascript" src="pm_pgp/openpgp.js"></script><!-- ENDIF -->
 ]]></action>
 			</edit>
 		</open>

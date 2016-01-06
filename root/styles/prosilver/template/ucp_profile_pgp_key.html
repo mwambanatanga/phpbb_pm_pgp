@@ -1,32 +1,26 @@
 <!-- INCLUDE ucp_header.html -->
 <script language="Javascript" type="text/javascript">
+var publicKey = '';
 
-var keytyp = -1;
-var keyid  = '';
-var pubkey = '';
-
-function getfingerprint()
-{
- var key = document.getElementById('pgp_key').value;
- var pu = new getPublicKey(key);
-
- if(pu.vers == -1) return;
-
- var fingerprint = pu.fp.toUpperCase();
- if (fingerprint == '') {
-  document.getElementById("fp").value = "N/A";
-  document.getElementById("fingerprint").value = '';
- }
- else {
+function read_public_key() {
+  var pgp_public_key = document.getElementById('pgp_key').value;
+  publicKey = window.openpgp.key.readArmored(pgp_public_key).keys[0];
+  if (typeof publicKey === 'undefined') {
+    document.getElementById("fp").value = "N/A";
+    document.getElementById("key_user").value = "N/A";
+    document.getElementById("key_type").value = "N/A";
+    return;
+  }
+  var fingerprint = publicKey.primaryKey.getFingerprint();
+  fingerprint = fingerprint.toUpperCase();
   document.getElementById("fp").value = fingerprint;
   document.getElementById("fingerprint").value = fingerprint;
- }
 
- var key_user = pu.user;
- document.getElementById("key_user").value = key_user;
+  var key_user = publicKey.users[0].userId.userid;
+  document.getElementById("key_user").value = key_user;
 
- var key_type = pu.type;
- document.getElementById("key_type").value = (typeof key_type === 'undefined') ? "N/A" : key_type;
+  var key_type = publicKey.primaryKey.algorithm;
+  document.getElementById("key_type").value = (key_type.includes('rsa')) ? 'RSA' : 'ElGamal';
 }
 </script>
 <form id="ucp" method="post" action="{S_UCP_ACTION}"{S_FORM_ENCTYPE}>
@@ -41,7 +35,7 @@ function getfingerprint()
 	<!-- IF ERROR --><p class="error">{ERROR}</p><!-- ENDIF -->
 	<dl>
 		<dt><label for="pgp_key">{L_PUBLIC_PGP_KEY}:</label></dt>
-		<dd><textarea name="pgp_key" id="pgp_key" class="inputbox" rows="3" cols="80" onkeyup="getfingerprint()">{PGP_KEY_BLOCK}</textarea></dd>
+		<dd><textarea name="pgp_key" id="pgp_key" class="inputbox" rows="3" cols="80" onkeyup="read_public_key();">{PGP_KEY_BLOCK}</textarea></dd>
 	</dl>
 	<dl>
 		<dt><label for="fingerprint">{L_PGP_FINGERPRINT}:</label></dt>
