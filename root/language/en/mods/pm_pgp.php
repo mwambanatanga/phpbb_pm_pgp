@@ -61,5 +61,6 @@ $lang = array_merge($lang, array(
 	'PGP_KEY_UPLOADED'			=> 'Your public PGP key was uploaded to forum database.',
 	'KEY_USER'					=> 'Key user',
 	'KEY_TYPE'					=> 'Key type',
+	'ENCRYPT'					=> 'Encrypt',
 ));
 ?>

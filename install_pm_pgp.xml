@@ -167,10 +167,203 @@
 ]]></action>
 			</edit>
 		</open>
+		<open src="includes/ucp/ucp_pm_compose.php">
+			<edit>
+				<find><![CDATA[include($phpbb_root_path . 'includes/message_parser.' . $phpEx);]]></find>
+				<action type="after-add"><![CDATA[	//start PGP code
+	include($phpbb_root_path . 'includes/functions_pm_pgp.' . $phpEx);
+	//end PGP code]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[if ($type == 'u')
+				{]]></find>
+				<action type="after-add"><![CDATA[					$pgp_data = get_pgp_data($id);]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA['NAME_FULL'		=> get_username_string('full', $id, ${$type}[$id]['name'], ${$type}[$id]['colour']),]]></find>
+				<action type="after-add"><![CDATA[						'FINGERPRINT'		=> ($pgp_data['fingerprint']) ? strtoupper(substr($pgp_data['fingerprint'], -8)) : '',
+						'ID'			=> $id,]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA['UA_PROGRESS_BAR'			=> addslashes(append_sid("{$phpbb_root_path}posting.$phpEx", 'f=0&amp;mode=popup')),]]></find>
+				<action type="after-add"><![CDATA[		'LOAD_PGP_JS'			=> true,]]></action>
+			</edit>
+		</open>
+		<open src="includes/ucp/ucp_pm.php">
+			<edit>
+				<find><![CDATA[$template->assign_var('S_PRIVMSGS', true);]]></find>
+				<action type="after-add"><![CDATA[//start PGP code
+		$template->assign_var('L_ENCRYPT', $user->lang['ENCRYPT']);
+//end PGP code]]></action>
+			</edit>
+		</open>
+		<open src="includes/ucp/ucp_pm_viewmessage.php">
+			<edit>
+				<find><![CDATA[$user_info = get_user_information($author_id, $message_row);]]></find>
+				<action type="after-add"><![CDATA[
+	$encrypted = preg_match("/-----BEGIN PGP MESSAGE-----/", $message_row['message_text']);
+	if (!$encrypted) {]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[$message = smiley_text($message);]]></find>
+				<action type="after-add"><![CDATA[	}
+	else {
+		$message = $message_row['message_text'];
+	}]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA['U_FORWARD_PM'		=> ($config['forward_pm'] && $auth->acl_get('u_sendpm') && $auth->acl_get('u_pm_forward')) ? "$url&amp;mode=compose&amp;action=forward&amp;f=$folder_id&amp;p=" . $message_row['msg_id'] : '']]></find>
+				<action type="after-add"><![CDATA[,
+		'LOAD_PGP_JS'		=> $encrypted]]></action>
+			</edit>
+		</open>
 		<open src="includes/ucp/info/ucp_profile.php">
 			<edit>
 				<find><![CDATA['reg_details'	=> array('title' => 'UCP_PROFILE_REG_DETAILS', 'auth' => '', 'cat' => array('UCP_PROFILE')),]]></find>
 				<action type="after-add"><![CDATA[				'pgp_key'	=> array('title' => 'UCP_PROFILE_PGP_KEY', 'auth' => '', 'cat' => array('UCP_PROFILE')),]]></action>
+			</edit>
+		</open>
+		<open src="styles/prosilver/template/ucp_pm_message_header.html">
+			<edit>
+				<find><![CDATA[<h2>{L_TITLE}<!-- IF CUR_FOLDER_NAME -->: {CUR_FOLDER_NAME}<!-- ENDIF --></h2>]]></find>
+				<action type="after-add"><![CDATA[<script>
+var pgp_msg = '';
+var pgpMessage = '';
+var pgp_msg_fingerprint = '';
+var pgp_private_key = '';
+var pgp_key_password = '';
+var privateKey = '';
+
+function read_priv_key_file()
+{
+  if (!window.File || !window.FileReader) {
+    document.getElementById('decrypt_status').innerHTML = "Sorry, but your browser is not supported.";
+    return;
+  }
+  var reader = new FileReader();
+  var file = private_key.files[0];
+  var key_id = '';
+  reader.onload = function(e) {
+    pgp_private_key = reader.result;
+    privateKey = window.openpgp.key.readArmored(pgp_private_key).keys[0];
+    // let's find the corresponding signing key id
+    for (i = 0; i < privateKey.subKeys.length; i++) {
+      key_id = privateKey.subKeys[i].subKey.getFingerprint();
+      key_id = key_id.substr(key_id.length - 8).toUpperCase();
+      if (key_id = document.getElementById("pgp_msg_fingerprint").innerHTML) {
+        document.getElementById("fingerprint").value = key_id;
+        document.getElementById("key_ok").innerHTML = "Match!!!";
+        break;
+      }
+    }
+    document.getElementById("key_id").value = privateKey.users[0].userId.userid;
+  }
+  reader.readAsText(file);
+}
+
+function pgp_decrypt() {
+  pgp_key_password = document.getElementById("pgp_key_password").value;
+  privateKey.decrypt(pgp_key_password);
+  window.openpgp.decryptMessage(privateKey, pgpMessage).then(function(plaintext) {
+    // success
+      document.getElementsByClassName("content")[0].innerHTML = plaintext;
+      document.getElementById('decrypt_status').innerHTML = "Done!";
+  }).catch(function(error) {
+    document.getElementById('decrypt_status').innerHTML = "Failed.";
+  });
+}
+</script>]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[<!-- IF U_POST_REPLY_PM and S_PM_RECIPIENTS gt 1 --><div class="reply-all"><a class="left" title="{L_REPLY_TO_ALL}" href="{U_POST_REPLY_ALL}">{L_REPLY_TO_ALL}</a></div><!-- ENDIF -->]]></find>
+				<action type="after-add"><![CDATA[			<!-- IF LOAD_PGP_JS --><br>This message was encrypted with PGP key <span id="pgp_msg_fingerprint"></span>. To decrypt it, provide public key file and passphrase.<br>Private key:<input id="private_key" name="private_key" type="file" onchange="read_priv_key_file();"/><br>Fingerprint:<input type="text" id="fingerprint" disabled><span id="key_ok"></span><br>User Id:<input type="text" id="key_id" disabled><br>Password<input type="password" id="pgp_key_password" name="pgp_key_password"><br><input type="button" name="decrypt" value="DECRYPT" onclick="pgp_decrypt();"> <span id="decrypt_status">This may take some time.</span><!-- ENDIF -->]]></action>
+			</edit>
+		</open>
+		<open src="styles/prosilver/template/ucp_pm_viewmessage.html">
+			<edit>
+				<find><![CDATA[<!-- IF S_DISPLAY_HISTORY --><!-- INCLUDE ucp_pm_history.html --><!-- ENDIF -->]]></find>
+				<action type="after-add"><![CDATA[<!-- IF LOAD_PGP_JS -->
+<script>
+pgp_msg=document.getElementsByClassName("content")[0].innerHTML;
+pgpMessage = window.openpgp.message.readArmored(pgp_msg);
+pgp_msg_fingerprint = pgpMessage.packets[0].publicKeyId.toHex();
+document.getElementById("pgp_msg_fingerprint").innerHTML = pgp_msg_fingerprint.substr(pgp_msg_fingerprint.length - 8).toUpperCase();
+</script>
+<!-- ENDIF -->]]></action>
+			</edit>
+		</open>
+		<open src="styles/prosilver/template/posting_editor.html">
+			<edit>
+				<find><![CDATA[<!-- IF to_recipient.IS_GROUP --><a href="{to_recipient.U_VIEW}"><strong>{to_recipient.NAME}</strong></a>&nbsp;<!-- ELSE -->{to_recipient.NAME_FULL}&nbsp;]]></find>
+				<action type="after-add"><![CDATA[<!-- IF to_recipient.FINGERPRINT -->({to_recipient.FINGERPRINT})<input type="hidden" class="keys" id="{to_recipient.ID}" value="{to_recipient.NAME}">&nbsp;<!-- ENDIF -->]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA[<input type="submit" accesskey="s" tabindex="6" name="post" value="{L_SUBMIT}" class="button1 default-submit-action" />&nbsp;
+
+		</fieldset>]]></find>
+				<action type="replace-with"><![CDATA[			<input type="submit" accesskey="s" tabindex="6" name="post" value="{L_SUBMIT}" class="button1 default-submit-action" />&nbsp;
+			<!-- IF S_PRIVMSGS --><input type="button" accesskey="e" tabindex="6" name="post" value="{L_ENCRYPT}" class="button1" onclick="show_encryption_panel();"/>&nbsp;<!-- ENDIF -->
+		</fieldset>
+<script>
+var keytyp = -1;
+var pktype = -1;
+var keyid  = '';
+var pubkey = '';
+var public_key = '';
+var list_generated = 0;
+function show_encryption_panel() {
+  generate_pgp_userlist();
+  var pgpopts=document.getElementById('encryption_options');
+  pgpopts.style.display = (pgpopts.style.display != 'none' ? 'none' : '' );
+}
+
+function generate_pgp_userlist() {
+  if (list_generated == 1) return;
+  var recipients_parent = document.getElementById("recipients_with_key");
+  var userlist_html_text = '';
+  var aTag;
+  var aDiv;
+  var userlist = document.getElementsByClassName("keys");
+  if (userlist.length == 0) recipients_parent.value = "No recipients with PGP key selected. Can not encrypt.";
+  else {
+    for (i = 0; i < userlist.length; i++) {
+      aDiv = document.createElement("div");
+      aDiv.id = "user-" + userlist[i].id;
+      aDiv.innerHTML = userlist[i].value;
+      aDiv.className = "username-coloured";
+      aDiv.setAttribute("onclick", "encrypt(" + userlist[i].id + ")");
+      recipients_parent.appendChild(aDiv);
+    }
+  }
+  list_generated = 1;
+}
+
+function get_key(user_id) {
+  document.getElementById("encryption_status").innerHTML = "Запрашиваем публичный ключ получателя...";
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+      public_key = xhttp.responseText;
+    }
+  };
+  xhttp.open("GET", "{SITE_ROOT}keydown.php?u=" + user_id, false);
+  xhttp.send();
+}
+
+function encrypt(recipient)
+{
+  get_key(recipient);
+  var publicKey = openpgp.key.readArmored(public_key);
+  var text=document.getElementById("message").value;
+  openpgp.encryptMessage(publicKey.keys, text).then(function(pgpMessage) {
+    document.getElementById("message").value = pgpMessage;
+    document.getElementById("encryption_status").innerHTML = "Сообщение зашифровано";
+  }).catch(function(error) {
+    document.getElementById("encryption_status").innerHTML = "Шифрование прервано.";
+  });
+}
+</script>
+<div id="encryption_options" style="display: none;"><font color="red">Шифрование работает в тестовом режиме. Просьба сообщать обо всех неожиданностях.</font><hr>Чтобы зашифровать сообщение, кликните по нику адресата ниже (можно выбрать лишь одного адресата):<br><br><div id="recipients_with_key"></div><br><br><span id="encryption_status"></span></div>]]></action>
 			</edit>
 		</open>
 		<php-installer><![CDATA[install_pm_pgp_mod.php]]></php-installer>

@@ -61,5 +61,6 @@ $lang = array_merge($lang, array(
 	'PGP_KEY_UPLOADED'			=> 'Твой открытый ключ PGP был загружен в базу данных форума.',
 	'KEY_USER'					=> 'Пользователь ключа',
 	'KEY_TYPE'					=> 'Тип ключа',
+	'ENCRYPT'					=> 'Зашифровать',
 ));
 ?>
