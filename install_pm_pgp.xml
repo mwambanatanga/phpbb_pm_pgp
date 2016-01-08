@@ -212,9 +212,21 @@
 	}]]></action>
 			</edit>
 			<edit>
-				<find><![CDATA['U_FORWARD_PM'		=> ($config['forward_pm'] && $auth->acl_get('u_sendpm') && $auth->acl_get('u_pm_forward')) ? "$url&amp;mode=compose&amp;action=forward&amp;f=$folder_id&amp;p=" . $message_row['msg_id'] : '']]></find>
-				<action type="after-add"><![CDATA[,
-		'LOAD_PGP_JS'		=> $encrypted]]></action>
+				<find><![CDATA[	$bbcode_status	= ($config['allow_bbcode'] && $config['auth_bbcode_pm'] && $auth->acl_get('u_pm_bbcode')) ? true : false;]]></find>
+				<action type="after-add"><![CDATA[//PGP code start
+	$user->add_lang('mods/pm_pgp');
+//PGP code end]]></action>
+			</edit>
+			<edit>
+				<find><![CDATA['U_FORWARD_PM'		=> ($config['forward_pm'] && $auth->acl_get('u_sendpm') && $auth->acl_get('u_pm_forward')) ? "$url&amp;mode=compose&amp;action=forward&amp;f=$folder_id&amp;p=" . $message_row['msg_id'] : '')]]></find>
+				<action type="replace-with"><![CDATA['U_FORWARD_PM'		=> ($config['forward_pm'] && $auth->acl_get('u_sendpm') && $auth->acl_get('u_pm_forward')) ? "$url&amp;mode=compose&amp;action=forward&amp;f=$folder_id&amp;p=" . $message_row['msg_id'] : '',
+		'LOAD_PGP_JS'		=> $encrypted,
+		'PGP_BROWSER_NOT_SUPPORTED'	=> $user->lang['PGP_BROWSER_NOT_SUPPORTED'],
+		'PRIVATE_PGP_KEY'	=> $user->lang['PRIVATE_PGP_KEY'],
+		'PGP_FINGERPRINT'	=> $user->lang['PGP_FINGERPRINT'],
+		'PGP_KEY_USER_ID'	=> $user->lang['PGP_KEY_USER_ID'],
+		'PGP_PASSPHRASE'	=> $user->lang['PGP_PASSPHRASE'],
+		)]]></action>
 			</edit>
 		</open>
 		<open src="includes/ucp/info/ucp_profile.php">
@@ -237,7 +249,7 @@ var privateKey = '';
 function read_priv_key_file()
 {
   if (!window.File || !window.FileReader) {
-    document.getElementById('decrypt_status').innerHTML = "Sorry, but your browser is not supported.";
+    document.getElementById('decrypt_status').innerHTML = "{PGP_BROWSER_NOT_SUPPORTED}";
     return;
   }
   var reader = new FileReader();
@@ -275,8 +287,28 @@ function pgp_decrypt() {
 </script>]]></action>
 			</edit>
 			<edit>
-				<find><![CDATA[<!-- IF U_POST_REPLY_PM and S_PM_RECIPIENTS gt 1 --><div class="reply-all"><a class="left" title="{L_REPLY_TO_ALL}" href="{U_POST_REPLY_ALL}">{L_REPLY_TO_ALL}</a></div><!-- ENDIF -->]]></find>
-				<action type="after-add"><![CDATA[			<!-- IF LOAD_PGP_JS --><br>This message was encrypted with PGP key <span id="pgp_msg_fingerprint"></span>. To decrypt it, provide public key file and passphrase.<br>Private key:<input id="private_key" name="private_key" type="file" onchange="read_priv_key_file();"/><br>Fingerprint:<input type="text" id="fingerprint" disabled><span id="key_ok"></span><br>User Id:<input type="text" id="key_id" disabled><br>Password<input type="password" id="pgp_key_password" name="pgp_key_password"><br><input type="button" name="decrypt" value="DECRYPT" onclick="pgp_decrypt();"> <span id="decrypt_status">This may take some time.</span><!-- ENDIF -->]]></action>
+				<find><![CDATA[<!-- IF U_POST_REPLY_PM and S_PM_RECIPIENTS gt 1 --><div class="reply-all"><a class="left" title="{L_REPLY_TO_ALL}" href="{U_POST_REPLY_ALL}">{L_REPLY_TO_ALL}</a></div><!-- ENDIF -->
+		</div>]]></find>
+				<action type="after-add"><![CDATA[			<!-- IF LOAD_PGP_JS --><div class="clear"></div><div>This message was encrypted with PGP key <span id="pgp_msg_fingerprint"></span>. To decrypt it, provide public key file and passphrase.
+<fieldset class="fields1">
+  <dl>
+    <dt><label for="private_key">{PRIVATE_PGP_KEY}:</label></dt>
+    <dd><input id="private_key" name="private_key" type="file" onchange="read_priv_key_file();"/></dd>
+  </dl>
+  <dl>
+    <dt><label for="fingerprint">{PGP_FINGERPRINT}:</label></dt>
+    <dd><input type="text" id="fingerprint" name="fingerprint" disabled><span id="key_ok"></span></dd>
+  </dl>
+  <dl>
+    <dt><label for="user_id">{PGP_KEY_USER_ID}:</label></dt>
+    <dd><input type="text" id="key_id" name="user_id" disabled></dd>
+  </dl>
+  <dl>
+    <dt><label for="passphrase">{PGP_PASSPHRASE}:</label></dt>
+    <dd><input type="password" id="pgp_key_password" name="pgp_key_password"></dd>
+  </dl>
+</fieldset>
+<input type="button" name="decrypt" value="DECRYPT" onclick="pgp_decrypt();"> <span id="decrypt_status">This may take some time.</span></div><!-- ENDIF -->]]></action>
 			</edit>
 		</open>
 		<open src="styles/prosilver/template/ucp_pm_viewmessage.html">

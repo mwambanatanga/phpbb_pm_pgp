@@ -62,5 +62,9 @@ $lang = array_merge($lang, array(
 	'KEY_USER'					=> 'Пользователь ключа',
 	'KEY_TYPE'					=> 'Тип ключа',
 	'ENCRYPT'					=> 'Зашифровать',
+	'PGP_BROSER_NOT_SUPPORTED'	=> 'К сожалению, твой браузер не поддерживает чтение файлов',
+	'PRIVATE_PGP_KEY'		=> 'Закрытый ключ PGP',
+	'PGP_KEY_USER_ID'		=> 'ID пользователя ключа',
+	'PGP_PASSPHRASE'		=> 'Парольная фраза',
 ));
 ?>

@@ -62,5 +62,10 @@ $lang = array_merge($lang, array(
 	'KEY_USER'					=> 'Key user',
 	'KEY_TYPE'					=> 'Key type',
 	'ENCRYPT'					=> 'Encrypt',
+	'PGP_BROWSER_NOT_SUPPORTED'	=> 'Unfortunately, your browser does not support reading files',
+	'PRIVATE_PGP_KEY'		=> 'Private PGP key',
+	'PGP_KEY_USER_ID'		=> 'Key user ID',
+	'PGP_PASSPHRASE'		=> 'Passphrase',
+
 ));
 ?>
