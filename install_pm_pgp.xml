@@ -186,14 +186,18 @@
 			</edit>
 			<edit>
 				<find><![CDATA['UA_PROGRESS_BAR'			=> addslashes(append_sid("{$phpbb_root_path}posting.$phpEx", 'f=0&amp;mode=popup')),]]></find>
-				<action type="after-add"><![CDATA[		'LOAD_PGP_JS'			=> true,]]></action>
+				<action type="after-add"><![CDATA[		'LOAD_PGP_JS'			=> true,
+		'PGP_PUBLIC_KEY_LOOKUP'			=> $user->lang['PGP_PUBLIC_KEY_LOOKUP'],
+		'PGP_ENCRYPT_OK'			=> $user->lang['PGP_ENCRYPT_OK'],
+		'PGP_ENCRYPT_FAIL'			=> $user->lang['PGP_ENCRYPT_FAIL'],
+		'PGP_USER_NOT_SELECTED'			=> $user->lang['PGP_USER_NOT_SELECTED'],]]></action>
 			</edit>
 		</open>
 		<open src="includes/ucp/ucp_pm.php">
 			<edit>
 				<find><![CDATA[$template->assign_var('S_PRIVMSGS', true);]]></find>
 				<action type="after-add"><![CDATA[//start PGP code
-		$template->assign_var('L_ENCRYPT', $user->lang['ENCRYPT']);
+		$template->assign_var('L_PGP_ENCRYPT', $user->lang['PGP_ENCRYPT']);
 //end PGP code]]></action>
 			</edit>
 		</open>
@@ -226,6 +230,13 @@
 		'PGP_FINGERPRINT'	=> $user->lang['PGP_FINGERPRINT'],
 		'PGP_KEY_USER_ID'	=> $user->lang['PGP_KEY_USER_ID'],
 		'PGP_PASSPHRASE'	=> $user->lang['PGP_PASSPHRASE'],
+		'PGP_ENCRYPTION_NOTICE'	=> $user->lang['PGP_ENCRYPTION_NOTICE'],
+		'PGP_DECRYPT_TAKE_TIME'	=> $user->lang['PGP_DECRYPT_TAKE_TIME'],
+		'PGP_NOT_KEY'		=> $user->lang['PGP_NOT_KEY'],
+		'PGP_MATCH'			=> $user->lang['PGP_MATCH'],
+		'PGP_DECRYPT_OK'		=> $user->lang['PGP_DECRYPT_OK'],
+		'PGP_DECRYPT_FAIL'			=> $user->lang['PGP_DECRYPT_FAIL'],
+		'PGP_DECRYPT'			=> $user->lang['PGP_DECRYPT'],
 		)]]></action>
 			</edit>
 		</open>
@@ -258,13 +269,21 @@ function read_priv_key_file()
   reader.onload = function(e) {
     pgp_private_key = reader.result;
     privateKey = window.openpgp.key.readArmored(pgp_private_key).keys[0];
+    if (typeof privateKey === 'undefined') {
+      document.getElementById("fingerprint").value = '';
+      document.getElementById("key_ok").innerHTML = '';
+      document.getElementById("key_id").value = '';
+      document.getElementById('decrypt_status').innerHTML = "<font color='red'>{PGP_NOT_KEY}</font>";
+      return;
+    }
     // let's find the corresponding signing key id
     for (i = 0; i < privateKey.subKeys.length; i++) {
       key_id = privateKey.subKeys[i].subKey.getFingerprint();
-      key_id = key_id.substr(key_id.length - 8).toUpperCase();
-      if (key_id = document.getElementById("pgp_msg_fingerprint").innerHTML) {
-        document.getElementById("fingerprint").value = key_id;
-        document.getElementById("key_ok").innerHTML = "Match!!!";
+//      key_id = key_id.substr(key_id.length - 8).toUpperCase();
+      if (key_id = pgp_msg_fingerprint) {
+        document.getElementById("fingerprint").value = key_id.substr(key_id.length - 8).toUpperCase();
+        document.getElementById("key_ok").innerHTML = "<font color='green'>{PGP_MATCH}</font>";
+        document.getElementById('decrypt_status').innerHTML = "{PGP_DECRYPT_TAKE_TIME}";
         break;
       }
     }
@@ -279,9 +298,9 @@ function pgp_decrypt() {
   window.openpgp.decryptMessage(privateKey, pgpMessage).then(function(plaintext) {
     // success
       document.getElementsByClassName("content")[0].innerHTML = plaintext;
-      document.getElementById('decrypt_status').innerHTML = "Done!";
+      document.getElementById('decrypt_status').innerHTML = "<font color='green'>{PGP_DECRYPT_OK}</font>";
   }).catch(function(error) {
-    document.getElementById('decrypt_status').innerHTML = "Failed.";
+    document.getElementById('decrypt_status').innerHTML = "<font color='red'>{PGP_DECRYPT_FAIL}</font>";
   });
 }
 </script>]]></action>
@@ -289,7 +308,7 @@ function pgp_decrypt() {
 			<edit>
 				<find><![CDATA[<!-- IF U_POST_REPLY_PM and S_PM_RECIPIENTS gt 1 --><div class="reply-all"><a class="left" title="{L_REPLY_TO_ALL}" href="{U_POST_REPLY_ALL}">{L_REPLY_TO_ALL}</a></div><!-- ENDIF -->
 		</div>]]></find>
-				<action type="after-add"><![CDATA[			<!-- IF LOAD_PGP_JS --><div class="clear"></div><div>This message was encrypted with PGP key <span id="pgp_msg_fingerprint"></span>. To decrypt it, provide public key file and passphrase.
+				<action type="after-add"><![CDATA[			<!-- IF LOAD_PGP_JS --><div class="clear"></div><div><div id="encryption_notice">{PGP_ENCRYPTION_NOTICE}</div>
 <fieldset class="fields1">
   <dl>
     <dt><label for="private_key">{PRIVATE_PGP_KEY}:</label></dt>
@@ -308,7 +327,7 @@ function pgp_decrypt() {
     <dd><input type="password" id="pgp_key_password" name="pgp_key_password"></dd>
   </dl>
 </fieldset>
-<input type="button" name="decrypt" value="DECRYPT" onclick="pgp_decrypt();"> <span id="decrypt_status">This may take some time.</span></div><!-- ENDIF -->]]></action>
+<input type="button" name="decrypt" value="{PGP_DECRYPT}" onclick="pgp_decrypt();"> <span id="decrypt_status">{PGP_DECRYPT_TAKE_TIME}</span></div><!-- ENDIF -->]]></action>
 			</edit>
 		</open>
 		<open src="styles/prosilver/template/ucp_pm_viewmessage.html">
@@ -319,7 +338,7 @@ function pgp_decrypt() {
 pgp_msg=document.getElementsByClassName("content")[0].innerHTML;
 pgpMessage = window.openpgp.message.readArmored(pgp_msg);
 pgp_msg_fingerprint = pgpMessage.packets[0].publicKeyId.toHex();
-document.getElementById("pgp_msg_fingerprint").innerHTML = pgp_msg_fingerprint.substr(pgp_msg_fingerprint.length - 8).toUpperCase();
+document.getElementById("encryption_notice").innerHTML = document.getElementById("encryption_notice").innerHTML.replace('\{1\}', pgp_msg_fingerprint.substr(pgp_msg_fingerprint.length - 8).toUpperCase());
 </script>
 <!-- ENDIF -->]]></action>
 			</edit>
@@ -334,7 +353,7 @@ document.getElementById("pgp_msg_fingerprint").innerHTML = pgp_msg_fingerprint.s
 
 		</fieldset>]]></find>
 				<action type="replace-with"><![CDATA[			<input type="submit" accesskey="s" tabindex="6" name="post" value="{L_SUBMIT}" class="button1 default-submit-action" />&nbsp;
-			<!-- IF S_PRIVMSGS --><input type="button" accesskey="e" tabindex="6" name="post" value="{L_ENCRYPT}" class="button1" onclick="show_encryption_panel();"/>&nbsp;<!-- ENDIF -->
+			<!-- IF S_PRIVMSGS --><input type="button" accesskey="e" tabindex="6" name="post" value="{L_PGP_ENCRYPT}" class="button1" onclick="show_encryption_panel();"/>&nbsp;<!-- ENDIF -->
 		</fieldset>
 <script>
 var keytyp = -1;
@@ -356,7 +375,7 @@ function generate_pgp_userlist() {
   var aTag;
   var aDiv;
   var userlist = document.getElementsByClassName("keys");
-  if (userlist.length == 0) recipients_parent.value = "No recipients with PGP key selected. Can not encrypt.";
+  if (userlist.length == 0) recipients_parent.value = "{PGP_USER_NOT_SELECTED}";
   else {
     for (i = 0; i < userlist.length; i++) {
       aDiv = document.createElement("div");
@@ -371,7 +390,7 @@ function generate_pgp_userlist() {
 }
 
 function get_key(user_id) {
-  document.getElementById("encryption_status").innerHTML = "Запрашиваем публичный ключ получателя...";
+  document.getElementById("encryption_status").innerHTML = "{PGP_PUBLIC_KEY_LOOKUP}";
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (xhttp.readyState == 4 && xhttp.status == 200) {
@@ -389,9 +408,9 @@ function encrypt(recipient)
   var text=document.getElementById("message").value;
   openpgp.encryptMessage(publicKey.keys, text).then(function(pgpMessage) {
     document.getElementById("message").value = pgpMessage;
-    document.getElementById("encryption_status").innerHTML = "Сообщение зашифровано";
+    document.getElementById("encryption_status").innerHTML = "<font color='green'>{PGP_ENCRYPT_OK}</font>";
   }).catch(function(error) {
-    document.getElementById("encryption_status").innerHTML = "Шифрование прервано.";
+    document.getElementById("encryption_status").innerHTML = "<font color='red'>{PGP_ENCRYPT_FAIL}</font>";
   });
 }
 </script>

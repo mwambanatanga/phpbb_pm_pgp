@@ -61,11 +61,21 @@ $lang = array_merge($lang, array(
 	'PGP_KEY_UPLOADED'			=> 'Your public PGP key was uploaded to forum database.',
 	'KEY_USER'					=> 'Key user',
 	'KEY_TYPE'					=> 'Key type',
-	'ENCRYPT'					=> 'Encrypt',
+	'PGP_ENCRYPT'					=> 'Encrypt',
 	'PGP_BROWSER_NOT_SUPPORTED'	=> 'Unfortunately, your browser does not support reading files',
 	'PRIVATE_PGP_KEY'		=> 'Private PGP key',
 	'PGP_KEY_USER_ID'		=> 'Key user ID',
 	'PGP_PASSPHRASE'		=> 'Passphrase',
-
+	'PGP_ENCRYPTION_NOTICE'	=> 'This message was encrypted with PGP key {1}. To decrypt it, provide public key file and passphrase.',
+	'PGP_DECRYPT_TAKE_TIME'		=> 'This may take some time.',
+	'PGP_DECRYPT_OK'		=> 'Decryption complete!',
+	'PGP_DECRYPT_FAIL'		=> 'Decryption failed.',
+	'PGP_NOT_KEY'			=> 'This file is not a PGP key.',
+	'PGP_MATCH'			=> 'Match!!!',
+	'PGP_DECRYPT'			=> 'Decrypt',
+	'PGP_PUBLIC_KEY_LOOKUP'		=> 'Requesting public PGP key...',
+	'PGP_ENCRYPT_OK'		=> 'Encryption complete!',
+	'PGP_ENCRYPT_FAIL'		=> 'Encryption failed.',
+	'PGP_USER_NOT_SELECTED'		=> 'Can not encrypt: no recipients with PGP key selected.',
 ));
 ?>
