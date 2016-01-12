@@ -9,7 +9,11 @@ function read_public_key() {
     document.getElementById("fp").value = "N/A";
     document.getElementById("key_user").value = "N/A";
     document.getElementById("key_type").value = "N/A";
+    document.getElementById("fingerprint").value = "";
     return;
+  }
+  if (publicKey.isPrivate()) {
+    document.getElementById('pgp_key').value = publicKey.toPublic().armor();
   }
   var fingerprint = publicKey.primaryKey.getFingerprint();
   fingerprint = fingerprint.toUpperCase();
