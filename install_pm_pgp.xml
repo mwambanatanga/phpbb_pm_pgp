@@ -190,7 +190,8 @@
 		'PGP_PUBLIC_KEY_LOOKUP'			=> $user->lang['PGP_PUBLIC_KEY_LOOKUP'],
 		'PGP_ENCRYPT_OK'			=> $user->lang['PGP_ENCRYPT_OK'],
 		'PGP_ENCRYPT_FAIL'			=> $user->lang['PGP_ENCRYPT_FAIL'],
-		'PGP_USER_NOT_SELECTED'			=> $user->lang['PGP_USER_NOT_SELECTED'],]]></action>
+		'PGP_USER_NOT_SELECTED'			=> $user->lang['PGP_USER_NOT_SELECTED'],
+		'PGP_ALREADY_ENCRYPTED'			=> $user->lang['PGP_ALREADY_ENCRYPTED'],]]></action>
 			</edit>
 		</open>
 		<open src="includes/ucp/ucp_pm.php">
@@ -362,6 +363,13 @@ var keyid  = '';
 var pubkey = '';
 var public_key = '';
 var list_generated = 0;
+
+function is_encrypted() {
+  var text=document.getElementById("message").value;
+  if (text.includes("-----BEGIN PGP MESSAGE-----") && text.includes("-----END PGP MESSAGE-----")) return true;
+  else return false;
+}
+
 function show_encryption_panel() {
   generate_pgp_userlist();
   var pgpopts=document.getElementById('encryption_options');
@@ -403,6 +411,10 @@ function get_key(user_id) {
 
 function encrypt(recipient)
 {
+  if (is_encrypted()) {
+    document.getElementById("encryption_status").innerHTML = "<font color='red'>{PGP_ALREADY_ENCRYPTED}</font>";
+    return;
+  }
   get_key(recipient);
   var publicKey = openpgp.key.readArmored(public_key);
   var text=document.getElementById("message").value;

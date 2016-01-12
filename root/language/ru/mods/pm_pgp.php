@@ -77,5 +77,6 @@ $lang = array_merge($lang, array(
 	'PGP_ENCRYPT_OK'		=> 'Шифрование завершено!',
 	'PGP_ENCRYPT_FAIL'		=> 'Не удалось зашифровать.',
 	'PGP_USER_NOT_SELECTED'		=> 'Невозможно зашифровать: не выбран получатель с ключом PGP.',
+	'PGP_ALREADY_ENCRYPTED'		=> 'Твоё сообщение уже зашифровано',
 ));
 ?>
