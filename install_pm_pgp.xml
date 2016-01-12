@@ -388,7 +388,7 @@ function generate_pgp_userlist() {
     for (i = 0; i < userlist.length; i++) {
       aDiv = document.createElement("div");
       aDiv.id = "user-" + userlist[i].id;
-      aDiv.innerHTML = userlist[i].value;
+      aDiv.innerHTML = "&nbsp;" + userlist[i].value + "&nbsp;";
       aDiv.className = "username-coloured";
       aDiv.setAttribute("onclick", "encrypt(" + userlist[i].id + ")");
       recipients_parent.appendChild(aDiv);
