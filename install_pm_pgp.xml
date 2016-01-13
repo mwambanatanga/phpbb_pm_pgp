@@ -191,7 +191,8 @@
 		'PGP_ENCRYPT_OK'			=> $user->lang['PGP_ENCRYPT_OK'],
 		'PGP_ENCRYPT_FAIL'			=> $user->lang['PGP_ENCRYPT_FAIL'],
 		'PGP_USER_NOT_SELECTED'			=> $user->lang['PGP_USER_NOT_SELECTED'],
-		'PGP_ALREADY_ENCRYPTED'			=> $user->lang['PGP_ALREADY_ENCRYPTED'],]]></action>
+		'PGP_ALREADY_ENCRYPTED'			=> $user->lang['PGP_ALREADY_ENCRYPTED'],
+		'PGP_ENCRYPTION_NOTICE'			=> $user->lang['PGP_ENCRYPTION_NOTICE'],]]></action>
 			</edit>
 		</open>
 		<open src="includes/ucp/ucp_pm.php">
@@ -354,7 +355,7 @@ document.getElementById("encryption_notice").innerHTML = document.getElementById
 
 		</fieldset>]]></find>
 				<action type="replace-with"><![CDATA[			<input type="submit" accesskey="s" tabindex="6" name="post" value="{L_SUBMIT}" class="button1 default-submit-action" />&nbsp;
-			<!-- IF S_PRIVMSGS --><input type="button" accesskey="e" tabindex="6" name="post" value="{L_PGP_ENCRYPT}" class="button1" onclick="show_encryption_panel();"/>&nbsp;<!-- ENDIF -->
+			<!-- IF S_PRIVMSGS --><input type="button" accesskey="e" tabindex="6" name="post" value="{L_PGP_ENCRYPT}" class="button1" onclick="toggle_encryption_panel();"/>&nbsp;<!-- ENDIF -->
 		</fieldset>
 <script>
 var keytyp = -1;
@@ -370,7 +371,7 @@ function is_encrypted() {
   else return false;
 }
 
-function show_encryption_panel() {
+function toggle_encryption_panel() {
   generate_pgp_userlist();
   var pgpopts=document.getElementById('encryption_options');
   pgpopts.style.display = (pgpopts.style.display != 'none' ? 'none' : '' );
@@ -383,7 +384,7 @@ function generate_pgp_userlist() {
   var aTag;
   var aDiv;
   var userlist = document.getElementsByClassName("keys");
-  if (userlist.length == 0) recipients_parent.value = "{PGP_USER_NOT_SELECTED}";
+  if (userlist.length == 0) document.getElementById("encryption_status").innerHTML = "<font color='red'>{PGP_USER_NOT_SELECTED}</font>";
   else {
     for (i = 0; i < userlist.length; i++) {
       aDiv = document.createElement("div");
@@ -426,7 +427,7 @@ function encrypt(recipient)
   });
 }
 </script>
-<div id="encryption_options" style="display: none;"><font color="red">Шифрование работает в тестовом режиме. Просьба сообщать обо всех неожиданностях.</font><hr>Чтобы зашифровать сообщение, кликните по нику адресата ниже (можно выбрать лишь одного адресата):<br><br><div id="recipients_with_key"></div><br><br><span id="encryption_status"></span></div>]]></action>
+<div id="encryption_options" style="display: none;"><div>{PGP_ENCRYPTION_NOTICE}</div><br><div id="recipients_with_key"></div><br><span id="encryption_status"></span></div>]]></action>
 			</edit>
 		</open>
 		<php-installer><![CDATA[install_pm_pgp_mod.php]]></php-installer>

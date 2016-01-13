@@ -78,5 +78,6 @@ $lang = array_merge($lang, array(
 	'PGP_ENCRYPT_FAIL'		=> 'Encryption failed.',
 	'PGP_USER_NOT_SELECTED'		=> 'Can not encrypt: no recipients with PGP key selected.',
 	'PGP_ALREADY_ENCRYPTED'		=> 'Your message is already encrypted.',
+	'PGP_ENCRYPTION_NOTICE'		=> 'To encrypt the message, click on the recipient\'s nickname below (only one recipient can be chosen).',
 ));
 ?>
