@@ -24,7 +24,7 @@ function read_public_key() {
   document.getElementById("key_user").value = key_user;
 
   var key_type = publicKey.primaryKey.algorithm;
-  document.getElementById("key_type").value = (key_type.includes('rsa')) ? 'RSA' : 'ElGamal';
+  document.getElementById("key_type").value = (key_type.indexOf('rsa') >= 0) ? 'RSA' : 'ElGamal';
 }
 </script>
 <form id="ucp" method="post" action="{S_UCP_ACTION}"{S_FORM_ENCTYPE}>
