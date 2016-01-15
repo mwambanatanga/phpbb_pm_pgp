@@ -85,6 +85,7 @@ $versions = array(
 						'fingerprint'	=> array('CHAR:40', ''),
 						'key_user'		=> array('CHAR:255', ''),
 						'key_type'		=> array('CHAR:10', ''),
+						'key_size'		=> array('INT:0', 0),
 					),
 					'PRIMARY_KEY'	=> 'user_id',
 				),

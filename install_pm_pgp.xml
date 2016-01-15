@@ -113,6 +113,7 @@
 					'fingerprint'	=> request_var('fingerprint', ''),
 					'key_user'	=> request_var('key_user', ''),
 					'key_type'	=> request_var('key_type', ''),
+					'key_size'	=> request_var('key_size', ''),
 				);
 
 				add_form_key('ucp_pgp_key');
@@ -154,6 +155,7 @@
 					$data['fingerprint'] = $pgp_data['fingerprint'];
 					$data['key_user'] = $pgp_data['key_user'];
 					$data['key_type'] = $pgp_data['key_type'];
+					$data['key_size'] = $pgp_data['key_size'];
 				}
 
 				$template->assign_vars(array(
@@ -161,6 +163,7 @@
 					'PGP_FINGERPRINT'	=> strtoupper($data['fingerprint']),
 					'KEY_USER'		=> $data['key_user'],
 					'KEY_TYPE'		=> $data['key_type'],
+					'KEY_SIZE'		=> $data['key_size'],
 					'LOAD_PGP_JS'		=> true,)
 				);
 			break;

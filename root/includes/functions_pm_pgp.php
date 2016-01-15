@@ -49,6 +49,7 @@ function get_pgp_data($user_id)
 		'fingerprint' => '',
 		'key_user' => '',
 		'key_type' => '',
+		'key_size' => '',
 	);
 	global $db, $user;
 	if (!defined('PGP_KEYS_TABLE'))
@@ -105,6 +106,7 @@ function put_pgp_data($data)
 			'pgp_key'		=> $data['pgp_key'],
 			'key_user'		=> $data['key_user'],
 			'key_type'		=> $data['key_type'],
+			'key_size'		=> $data['key_size'],
 			);
 		$sql = "UPDATE " . PGP_KEYS_TABLE . " SET " . $db->sql_build_array('UPDATE', $sql_ary) .
 			" WHERE user_id = " . $data['user_id'];
@@ -121,6 +123,7 @@ function put_pgp_data($data)
 			'pgp_key'	=> $data['pgp_key'],
 			'key_user'		=> $data['key_user'],
 			'key_type'		=> $data['key_type'],
+			'key_size'		=> $data['key_size'],
 			);
 		$sql = "INSERT into " . PGP_KEYS_TABLE . " " . $db->sql_build_array('INSERT', $sql_ary);
 		$db->sql_query($sql);
