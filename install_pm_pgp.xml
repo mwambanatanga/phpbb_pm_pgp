@@ -262,7 +262,8 @@ var privateKey = '';
 function read_priv_key_file()
 {
   if (!window.File || !window.FileReader) {
-    document.getElementById('decrypt_status').innerHTML = "{PGP_BROWSER_NOT_SUPPORTED}";
+    document.getElementById('decrypt_status').innerHTML = "<font color='red'>{PGP_BROWSER_NOT_SUPPORTED}</font>";
+    document.getElementById('decrypt').disabled = true;
     return;
   }
   var reader = new FileReader();
@@ -329,7 +330,7 @@ function pgp_decrypt() {
     <dd><input type="password" id="pgp_key_password" name="pgp_key_password"></dd>
   </dl>
 </fieldset>
-<input type="button" name="decrypt" value="{PGP_DECRYPT}" onclick="pgp_decrypt();"> <span id="decrypt_status">{PGP_DECRYPT_TAKE_TIME}</span></div><!-- ENDIF -->]]></action>
+<input type="button" name="decrypt" value="{PGP_DECRYPT}" id="decrypt" onclick="pgp_decrypt();"> <span id="decrypt_status">{PGP_DECRYPT_TAKE_TIME}</span></div><!-- ENDIF -->]]></action>
 			</edit>
 		</open>
 		<open src="styles/prosilver/template/ucp_pm_viewmessage.html">
@@ -337,6 +338,10 @@ function pgp_decrypt() {
 				<find><![CDATA[<!-- IF S_DISPLAY_HISTORY --><!-- INCLUDE ucp_pm_history.html --><!-- ENDIF -->]]></find>
 				<action type="after-add"><![CDATA[<!-- IF LOAD_PGP_JS -->
 <script>
+if (!window.File || !window.FileReader) {
+  document.getElementById('decrypt_status').innerHTML = "<font color='red'>{PGP_BROWSER_NOT_SUPPORTED}</font>";
+  document.getElementById('decrypt').disabled = true;
+}
 pgp_msg=document.getElementsByClassName("content")[0].innerHTML;
 pgpMessage = window.openpgp.message.readArmored(pgp_msg);
 pgp_msg_fingerprint = pgpMessage.packets[0].publicKeyId.toHex();
