@@ -10,6 +10,7 @@ function read_public_key() {
     document.getElementById("key_user").value = "N/A";
     document.getElementById("key_type").value = "N/A";
     document.getElementById("fingerprint").value = "";
+    document.getElementById("pgp_status").innerHTML = "";
     return;
   }
   if (publicKey.isPrivate()) {
@@ -25,6 +26,10 @@ function read_public_key() {
 
   var key_type = publicKey.primaryKey.algorithm;
   document.getElementById("key_type").value = (key_type.indexOf('rsa') >= 0) ? 'RSA' : 'ElGamal';
+  if (publicKey.hasOwnProperty("subKeys") {
+    document.getElementById("pgp_status").innerHTML = "<font color='red'>{L_PGP_NO_SUBKEYS}</font>";
+  }
+  else document.getElementById("pgp_status").innerHTML = "";
 }
 </script>
 <form id="ucp" method="post" action="{S_UCP_ACTION}"{S_FORM_ENCTYPE}>
@@ -34,7 +39,7 @@ function read_public_key() {
 <div class="panel">
 	<div class="inner"><span class="corners-top"><span></span></span>
 	<p>{L_PROFILE_PGP_NOTICE}</p>
-
+<div>
 <fieldset>
 	<!-- IF ERROR --><p class="error">{ERROR}</p><!-- ENDIF -->
 	<dl>
@@ -54,6 +59,8 @@ function read_public_key() {
 		<dd><input size=40 id="key_type" name="key_type" value="{KEY_TYPE}" readonly></dd>
 	</dl>
 </fieldset>
+</div>
+<div id="pgp_status"></div>
 
 	<span class="corners-bottom"><span></span></span></div>
 </div>
