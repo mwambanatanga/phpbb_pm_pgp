@@ -10,7 +10,7 @@ function read_public_key() {
     document.getElementById("key_user").value = "N/A";
     document.getElementById("key_type").value = "N/A";
     document.getElementById("fingerprint").value = "";
-    document.getElementById("pgp_status").innerHTML = "";
+    document.getElementById("pgp_status").innerHTML = "<font color='red'>{L_PGP_NOT_KEY}</font>";
     return;
   }
   if (publicKey.isPrivate()) {
