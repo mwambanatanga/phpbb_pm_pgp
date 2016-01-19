@@ -235,7 +235,7 @@
 		'PGP_FINGERPRINT'	=> $user->lang['PGP_FINGERPRINT'],
 		'PGP_KEY_USER_ID'	=> $user->lang['PGP_KEY_USER_ID'],
 		'PGP_PASSPHRASE'	=> $user->lang['PGP_PASSPHRASE'],
-		'PGP_ENCRYPTION_NOTICE'	=> $user->lang['PGP_ENCRYPTION_NOTICE'],
+		'PGP_DECRYPTION_NOTICE'	=> $user->lang['PGP_DECRYPTION_NOTICE'],
 		'PGP_DECRYPT_TAKE_TIME'	=> $user->lang['PGP_DECRYPT_TAKE_TIME'],
 		'PGP_NOT_KEY'		=> $user->lang['PGP_NOT_KEY'],
 		'PGP_MATCH'			=> $user->lang['PGP_MATCH'],
@@ -314,7 +314,7 @@ function pgp_decrypt() {
 			<edit>
 				<find><![CDATA[<!-- IF U_POST_REPLY_PM and S_PM_RECIPIENTS gt 1 --><div class="reply-all"><a class="left" title="{L_REPLY_TO_ALL}" href="{U_POST_REPLY_ALL}">{L_REPLY_TO_ALL}</a></div><!-- ENDIF -->
 		</div>]]></find>
-				<action type="after-add"><![CDATA[			<!-- IF LOAD_PGP_JS --><div class="clear"></div><div><div id="encryption_notice">{PGP_ENCRYPTION_NOTICE}</div>
+				<action type="after-add"><![CDATA[			<!-- IF LOAD_PGP_JS --><div class="clear"></div><div><div id="decryption_notice">{PGP_DECRYPTION_NOTICE}</div>
 <fieldset class="fields1">
   <dl>
     <dt><label for="private_key">{PRIVATE_PGP_KEY}:</label></dt>
@@ -348,7 +348,7 @@ if (!window.File || !window.FileReader) {
 pgp_msg=document.getElementsByClassName("content")[0].innerHTML;
 pgpMessage = window.openpgp.message.readArmored(pgp_msg);
 pgp_msg_fingerprint = pgpMessage.packets[0].publicKeyId.toHex();
-document.getElementById("encryption_notice").innerHTML = document.getElementById("encryption_notice").innerHTML.replace('\{1\}', pgp_msg_fingerprint.substr(pgp_msg_fingerprint.length - 8).toUpperCase());
+document.getElementById("decryption_notice").innerHTML = document.getElementById("decryption_notice").innerHTML.replace('\{1\}', pgp_msg_fingerprint.substr(pgp_msg_fingerprint.length - 8).toUpperCase());
 </script>
 <!-- ENDIF -->]]></action>
 			</edit>
