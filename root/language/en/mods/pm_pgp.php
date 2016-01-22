@@ -55,6 +55,7 @@ $lang = array_merge($lang, array(
 	'UCP_PROFILE_PGP_KEY'		=> 'Manage your PGP key',
 	'PROFILE_PGP_NOTICE'	=> 'Please note that ... [info about PGP keys to be added later]',
 	'PUBLIC_PGP_KEY'		=> 'Your public PGP key',
+	'PUBLIC_PGP_KEY_FILE'		=> 'Your public PGP key file',
 	'PGP_FINGERPRINT'		=> 'Key fingerprint',
 	'PGP_KEY_DELETED'			=> 'Your public PGP key was deleted from forum database.',
 	'BAD_PGP_KEY'				=> 'Upload aborted. Could not compute the fingerprint of your PGP key. Bad key?',
