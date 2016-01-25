@@ -189,13 +189,7 @@
 			</edit>
 			<edit>
 				<find><![CDATA['UA_PROGRESS_BAR'			=> addslashes(append_sid("{$phpbb_root_path}posting.$phpEx", 'f=0&amp;mode=popup')),]]></find>
-				<action type="after-add"><![CDATA[		'LOAD_PGP_JS'			=> true,
-		'PGP_PUBLIC_KEY_LOOKUP'			=> $user->lang['PGP_PUBLIC_KEY_LOOKUP'],
-		'PGP_ENCRYPT_OK'			=> $user->lang['PGP_ENCRYPT_OK'],
-		'PGP_ENCRYPT_FAIL'			=> $user->lang['PGP_ENCRYPT_FAIL'],
-		'PGP_USER_NOT_SELECTED'			=> $user->lang['PGP_USER_NOT_SELECTED'],
-		'PGP_ALREADY_ENCRYPTED'			=> $user->lang['PGP_ALREADY_ENCRYPTED'],
-		'PGP_ENCRYPTION_NOTICE'			=> $user->lang['PGP_ENCRYPTION_NOTICE'],]]></action>
+				<action type="after-add"><![CDATA[		'LOAD_PGP_JS'			=> true,]]></action>
 			</edit>
 		</open>
 		<open src="includes/ucp/ucp_pm.php">
@@ -230,18 +224,6 @@
 				<find><![CDATA['U_FORWARD_PM'		=> ($config['forward_pm'] && $auth->acl_get('u_sendpm') && $auth->acl_get('u_pm_forward')) ? "$url&amp;mode=compose&amp;action=forward&amp;f=$folder_id&amp;p=" . $message_row['msg_id'] : '')]]></find>
 				<action type="replace-with"><![CDATA['U_FORWARD_PM'		=> ($config['forward_pm'] && $auth->acl_get('u_sendpm') && $auth->acl_get('u_pm_forward')) ? "$url&amp;mode=compose&amp;action=forward&amp;f=$folder_id&amp;p=" . $message_row['msg_id'] : '',
 		'LOAD_PGP_JS'		=> $encrypted,
-		'PGP_BROWSER_NOT_SUPPORTED'	=> $user->lang['PGP_BROWSER_NOT_SUPPORTED'],
-		'PRIVATE_PGP_KEY'	=> $user->lang['PRIVATE_PGP_KEY'],
-		'PGP_FINGERPRINT'	=> $user->lang['PGP_FINGERPRINT'],
-		'PGP_KEY_USER_ID'	=> $user->lang['PGP_KEY_USER_ID'],
-		'PGP_PASSPHRASE'	=> $user->lang['PGP_PASSPHRASE'],
-		'PGP_DECRYPTION_NOTICE'	=> $user->lang['PGP_DECRYPTION_NOTICE'],
-		'PGP_DECRYPT_TAKE_TIME'	=> $user->lang['PGP_DECRYPT_TAKE_TIME'],
-		'PGP_NOT_KEY'		=> $user->lang['PGP_NOT_KEY'],
-		'PGP_MATCH'			=> $user->lang['PGP_MATCH'],
-		'PGP_DECRYPT_OK'		=> $user->lang['PGP_DECRYPT_OK'],
-		'PGP_DECRYPT_FAIL'			=> $user->lang['PGP_DECRYPT_FAIL'],
-		'PGP_DECRYPT'			=> $user->lang['PGP_DECRYPT'],
 		)]]></action>
 			</edit>
 		</open>
@@ -265,7 +247,7 @@ var privateKey = '';
 function read_priv_key_file()
 {
   if (!window.File || !window.FileReader) {
-    document.getElementById('decrypt_status').innerHTML = "<font color='red'>{PGP_BROWSER_NOT_SUPPORTED}</font>";
+    document.getElementById('decrypt_status').innerHTML = "<font color='red'>{L_PGP_BROWSER_NOT_SUPPORTED}</font>";
     document.getElementById('decrypt').disabled = true;
     return;
   }
@@ -279,7 +261,7 @@ function read_priv_key_file()
       document.getElementById("fingerprint").value = '';
       document.getElementById("key_ok").innerHTML = '';
       document.getElementById("key_id").value = '';
-      document.getElementById('decrypt_status').innerHTML = "<font color='red'>{PGP_NOT_KEY}</font>";
+      document.getElementById('decrypt_status').innerHTML = "<font color='red'>{L_PGP_NOT_KEY}</font>";
       return;
     }
     // let's find the corresponding signing key id
@@ -288,8 +270,8 @@ function read_priv_key_file()
 //      key_id = key_id.substr(key_id.length - 8).toUpperCase();
       if (key_id = pgp_msg_fingerprint) {
         document.getElementById("fingerprint").value = key_id.substr(key_id.length - 8).toUpperCase();
-        document.getElementById("key_ok").innerHTML = "<font color='green'>{PGP_MATCH}</font>";
-        document.getElementById('decrypt_status').innerHTML = "{PGP_DECRYPT_TAKE_TIME}";
+        document.getElementById("key_status").innerHTML = "<font color='green'>{L_PGP_MATCH}</font>";
+        document.getElementById('decrypt_status').innerHTML = "{L_PGP_DECRYPT_TAKE_TIME}";
         break;
       }
     }
@@ -304,9 +286,9 @@ function pgp_decrypt() {
   window.openpgp.decryptMessage(privateKey, pgpMessage).then(function(plaintext) {
     // success
       document.getElementsByClassName("content")[0].innerHTML = plaintext;
-      document.getElementById('decrypt_status').innerHTML = "<font color='green'>{PGP_DECRYPT_OK}</font>";
+      document.getElementById('decrypt_status').innerHTML = "<font color='green'>{L_PGP_DECRYPT_OK}</font>";
   }).catch(function(error) {
-    document.getElementById('decrypt_status').innerHTML = "<font color='red'>{PGP_DECRYPT_FAIL}</font>";
+    document.getElementById('decrypt_status').innerHTML = "<font color='red'>{L_PGP_DECRYPT_FAIL}</font>";
   });
 }
 </script>]]></action>
@@ -314,26 +296,26 @@ function pgp_decrypt() {
 			<edit>
 				<find><![CDATA[<!-- IF U_POST_REPLY_PM and S_PM_RECIPIENTS gt 1 --><div class="reply-all"><a class="left" title="{L_REPLY_TO_ALL}" href="{U_POST_REPLY_ALL}">{L_REPLY_TO_ALL}</a></div><!-- ENDIF -->
 		</div>]]></find>
-				<action type="after-add"><![CDATA[			<!-- IF LOAD_PGP_JS --><div class="clear"></div><div><div id="decryption_notice">{PGP_DECRYPTION_NOTICE}</div>
+				<action type="after-add"><![CDATA[			<!-- IF LOAD_PGP_JS --><div class="clear"></div><div><div id="decryption_notice">{L_PGP_DECRYPTION_NOTICE}</div>
 <fieldset class="fields1">
   <dl>
-    <dt><label for="private_key">{PRIVATE_PGP_KEY}:</label></dt>
+    <dt><label for="private_key">{L_PRIVATE_PGP_KEY}:</label></dt>
     <dd><input id="private_key" name="private_key" type="file" onchange="read_priv_key_file();"/></dd>
   </dl>
   <dl>
-    <dt><label for="fingerprint">{PGP_FINGERPRINT}:</label></dt>
-    <dd><input type="text" id="fingerprint" name="fingerprint" disabled><span id="key_ok"></span></dd>
+    <dt><label for="fingerprint">{L_PGP_FINGERPRINT}:</label></dt>
+    <dd><input type="text" id="fingerprint" name="fingerprint" disabled><span id="key_status"></span></dd>
   </dl>
   <dl>
-    <dt><label for="user_id">{PGP_KEY_USER_ID}:</label></dt>
+    <dt><label for="user_id">{L_PGP_KEY_USER_ID}:</label></dt>
     <dd><input type="text" id="key_id" name="user_id" disabled></dd>
   </dl>
   <dl>
-    <dt><label for="passphrase">{PGP_PASSPHRASE}:</label></dt>
+    <dt><label for="passphrase">{L_PGP_PASSPHRASE}:</label></dt>
     <dd><input type="password" id="pgp_key_password" name="pgp_key_password"></dd>
   </dl>
 </fieldset>
-<input type="button" name="decrypt" value="{PGP_DECRYPT}" id="decrypt" onclick="pgp_decrypt();"> <span id="decrypt_status">{PGP_DECRYPT_TAKE_TIME}</span></div><!-- ENDIF -->]]></action>
+<input type="button" name="decrypt" value="{L_PGP_DECRYPT}" id="decrypt" onclick="pgp_decrypt();"> <span id="decrypt_status">{L_PGP_DECRYPT_TAKE_TIME}</span></div><!-- ENDIF -->]]></action>
 			</edit>
 		</open>
 		<open src="styles/prosilver/template/ucp_pm_viewmessage.html">
@@ -342,7 +324,7 @@ function pgp_decrypt() {
 				<action type="after-add"><![CDATA[<!-- IF LOAD_PGP_JS -->
 <script>
 if (!window.File || !window.FileReader) {
-  document.getElementById('decrypt_status').innerHTML = "<font color='red'>{PGP_BROWSER_NOT_SUPPORTED}</font>";
+  document.getElementById('decrypt_status').innerHTML = "<font color='red'>{L_PGP_BROWSER_NOT_SUPPORTED}</font>";
   document.getElementById('decrypt').disabled = true;
 }
 pgp_msg=document.getElementsByClassName("content")[0].innerHTML;
@@ -392,7 +374,7 @@ function generate_pgp_userlist() {
   var aTag;
   var aDiv;
   var userlist = document.getElementsByClassName("keys");
-  if (userlist.length == 0) document.getElementById("encryption_status").innerHTML = "<font color='red'>{PGP_USER_NOT_SELECTED}</font>";
+  if (userlist.length == 0) document.getElementById("encryption_status").innerHTML = "<font color='red'>{L_PGP_USER_NOT_SELECTED}</font>";
   else {
     for (i = 0; i < userlist.length; i++) {
       aDiv = document.createElement("div");
@@ -407,7 +389,7 @@ function generate_pgp_userlist() {
 }
 
 function get_key(user_id) {
-  document.getElementById("encryption_status").innerHTML = "{PGP_PUBLIC_KEY_LOOKUP}";
+  document.getElementById("encryption_status").innerHTML = "{L_PGP_PUBLIC_KEY_LOOKUP}";
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (xhttp.readyState == 4 && xhttp.status == 200) {
@@ -421,7 +403,7 @@ function get_key(user_id) {
 function encrypt(recipient)
 {
   if (is_encrypted()) {
-    document.getElementById("encryption_status").innerHTML = "<font color='red'>{PGP_ALREADY_ENCRYPTED}</font>";
+    document.getElementById("encryption_status").innerHTML = "<font color='red'>{L_PGP_ALREADY_ENCRYPTED}</font>";
     return;
   }
   get_key(recipient);
@@ -429,13 +411,13 @@ function encrypt(recipient)
   var text=document.getElementById("message").value;
   openpgp.encryptMessage(publicKey.keys, text).then(function(pgpMessage) {
     document.getElementById("message").value = pgpMessage;
-    document.getElementById("encryption_status").innerHTML = "<font color='green'>{PGP_ENCRYPT_OK}</font>";
+    document.getElementById("encryption_status").innerHTML = "<font color='green'>{L_PGP_ENCRYPT_OK}</font>";
   }).catch(function(error) {
-    document.getElementById("encryption_status").innerHTML = "<font color='red'>{PGP_ENCRYPT_FAIL}</font>";
+    document.getElementById("encryption_status").innerHTML = "<font color='red'>{L_PGP_ENCRYPT_FAIL}</font>";
   });
 }
 </script>
-<div id="encryption_options" style="display: none;"><div>{PGP_ENCRYPTION_NOTICE}</div><br><div id="recipients_with_key"></div><br><span id="encryption_status"></span></div>]]></action>
+<div id="encryption_options" style="display: none;"><div>{L_PGP_ENCRYPTION_NOTICE}</div><br><div id="recipients_with_key"></div><br><span id="encryption_status"></span></div>]]></action>
 			</edit>
 		</open>
 		<php-installer><![CDATA[install_pm_pgp_mod.php]]></php-installer>
