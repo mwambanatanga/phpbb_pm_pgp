@@ -296,6 +296,7 @@ function pgp_decrypt() {
   privateKey.decrypt(pgp_key_password);
   window.openpgp.decryptMessage(privateKey, pgpMessage).then(function(plaintext) {
     // success
+      plaintext = plaintext.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       document.getElementsByClassName("content")[0].innerHTML = plaintext;
       document.getElementById('decrypt_status').innerHTML = "<font color='green'>{L_PGP_DECRYPT_OK}</font>";
   }).catch(function(error) {
