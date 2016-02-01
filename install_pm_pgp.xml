@@ -252,32 +252,43 @@ function read_priv_key_file()
     return;
   }
   var reader = new FileReader();
-  var file = private_key.files[0];
+  var file = private_key_file.files[0];
   var key_id = '';
   reader.onload = function(e) {
     pgp_private_key = reader.result;
-    privateKey = window.openpgp.key.readArmored(pgp_private_key).keys[0];
-    if (typeof privateKey === 'undefined') {
-      document.getElementById("fingerprint").value = '';
-      document.getElementById("key_ok").innerHTML = '';
-      document.getElementById("key_id").value = '';
-      document.getElementById('decrypt_status').innerHTML = "<font color='red'>{L_PGP_NOT_KEY}</font>";
-      return;
-    }
-    // let's find the corresponding signing key id
-    for (i = 0; i < privateKey.subKeys.length; i++) {
-      key_id = privateKey.subKeys[i].subKey.getFingerprint();
-//      key_id = key_id.substr(key_id.length - 8).toUpperCase();
-      if (key_id = pgp_msg_fingerprint) {
-        document.getElementById("fingerprint").value = key_id.substr(key_id.length - 8).toUpperCase();
-        document.getElementById("key_status").innerHTML = "<font color='green'>{L_PGP_MATCH}</font>";
-        document.getElementById('decrypt_status').innerHTML = "{L_PGP_DECRYPT_TAKE_TIME}";
-        break;
-      }
-    }
-    document.getElementById("key_id").value = privateKey.users[0].userId.userid;
+    document.getElementById("private_key").value = pgp_private_key;
+    read_private_key();
   }
   reader.readAsText(file);
+}
+
+function read_private_key() {
+  pgp_private_key = document.getElementById("private_key").value;
+  privateKey = window.openpgp.key.readArmored(pgp_private_key).keys[0];
+  if (typeof privateKey === 'undefined') {
+    document.getElementById("fingerprint").value = '';
+    document.getElementById("key_ok").innerHTML = '';
+    document.getElementById("key_id").value = '';
+    document.getElementById('decrypt_status').innerHTML = "<font color='red'>{L_PGP_NOT_KEY}</font>";
+    return;
+  }
+  if (privateKey.isPublic()) {
+    document.getElementById('decrypt_status').innerHTML = "<font color='red'>{L_PGP_NOT_PRIVATE_KEY}</font>";
+    document.getElementById('decrypt').disabled = true;
+    return;
+  }
+  // let's find the corresponding signing key id
+  for (i = 0; i < privateKey.subKeys.length; i++) {
+    key_id = privateKey.subKeys[i].subKey.getFingerprint();
+    if (key_id = pgp_msg_fingerprint) {
+      document.getElementById("fingerprint").value = key_id.substr(key_id.length - 8).toUpperCase();
+      document.getElementById("key_status").innerHTML = "<font color='green'>{L_PGP_MATCH}</font>";
+      document.getElementById('decrypt_status').innerHTML = "{L_PGP_DECRYPT_TAKE_TIME}";
+      break;
+    }
+  }
+  document.getElementById("key_id").value = privateKey.users[0].userId.userid;
+  document.getElementById('decrypt').disabled = false;
 }
 
 function pgp_decrypt() {
@@ -299,8 +310,12 @@ function pgp_decrypt() {
 				<action type="after-add"><![CDATA[			<!-- IF LOAD_PGP_JS --><div class="clear"></div><div><div id="decryption_notice">{L_PGP_DECRYPTION_NOTICE}</div>
 <fieldset class="fields1">
   <dl>
+    <dt><label for="private_key_file">{L_PRIVATE_PGP_KEY_FILE}:</label></dt>
+    <dd><input id="private_key_file" name="private_key_file" type="file" onchange="read_priv_key_file();"/></dd>
+  </dl>
+  <dl>
     <dt><label for="private_key">{L_PRIVATE_PGP_KEY}:</label></dt>
-    <dd><input id="private_key" name="private_key" type="file" onchange="read_priv_key_file();"/></dd>
+    <dd><textarea name="private_key" id="private_key" class="inputbox" rows="3" cols="80" oninput="read_private_key();"></textarea></dd>
   </dl>
   <dl>
     <dt><label for="fingerprint">{L_PGP_FINGERPRINT}:</label></dt>
